@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>사역박람회 체크인</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: #f8f6ff; min-height: 100vh; }
+
+    /* ── Screens ── */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: block; }
+
+    /* ── HOME ── */
+    #screen-home { background: #f8f6ff; }
+    .home-header {
+      background: linear-gradient(160deg, #6C63FF, #a78bfa);
+      padding: 48px 24px 36px;
+      text-align: center;
+      color: #fff;
+    }
+    .home-cross { font-size: 36px; margin-bottom: 8px; }
+    .home-title { font-size: 28px; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; }
+    .home-sub { font-size: 13px; opacity: 0.85; letter-spacing: 1px; }
+
+    .complete-banner {
+      background: linear-gradient(90deg, #6C63FF, #FF6584);
+      color: #fff;
+      padding: 14px 20px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 14px;
+      display: none;
+    }
+    .complete-banner.show { display: block; }
+
+    .progress-section { padding: 20px 20px 4px; }
+    .progress-label { font-size: 13px; color: #666; margin-bottom: 8px; }
+    .progress-label strong { color: #6C63FF; font-size: 15px; }
+    .progress-bar { height: 10px; background: #e0deff; border-radius: 10px; overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6C63FF, #a78bfa);
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    .booth-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      padding: 16px;
+    }
+    .booth-tile {
+      border-radius: 16px;
+      border: 2px solid #e0deff;
+      padding: 14px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      transition: all 0.3s;
+      opacity: 0.45;
+    }
+    .booth-tile.visited {
+      opacity: 1;
+    }
+    .booth-tile-icon { font-size: 28px; }
+    .booth-tile-name { font-size: 11px; font-weight: 700; color: #333; line-height: 1.3; }
+    .booth-tile-check { font-size: 18px; color: #6C63FF; font-weight: 900; }
+
+    .admin-link {
+      display: block;
+      margin: 8px auto 24px;
+      background: transparent;
+      border: none;
+      color: #bbb;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ── CHECK-IN ── */
+    #screen-checkin {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #f0f4ff, #e8f5e9);
+      padding: 24px;
+    }
+    #screen-checkin.active { display: flex; }
+
+    .checkin-card {
+      background: #fff;
+      border-radius: 28px;
+      padding: 36px 28px;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+    .big-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: #fff;
+      margin: 0 auto 16px;
+      font-weight: 900;
+    }
+    .checkin-title { font-size: 22px; font-weight: 900; color: #1a1a2e; margin-bottom: 10px; }
+    .booth-badge {
+      display: inline-block;
+      color: #fff;
+      border-radius: 20px;
+      padding: 7px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 28px;
+    }
+    .dot-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #fff;
+      font-weight: 900;
+      background: #ddd;
+      transition: background 0.3s;
+    }
+    .back-btn {
+      background: #6C63FF;
+      color: #fff;
+      border: none;
+      padding: 13px 36px;
+      border-radius: 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+      font-family: inherit;
+      width: 100%;
+    }
+
+    /* ── COMPLETE ── */
+    #screen-complete {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #1a1040, #6C63FF);
+      padding: 24px;
+    }
+    #screen-complete.active { display: flex; }
+
+    .complete-card {
+      background: #fff;
+      border-radius: 28px;
+      padding: 40px 28px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    }
+    .trophy { font-size: 72px; margin-bottom: 8px; animation: bounce 1s infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+
+    .complete-title { font-size: 26px; font-weight: 900; color: #1a1040; margin-bottom: 6px; }
+    .complete-sub { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .complete-msg {
+      background: #f8f6ff;
+      border-radius: 16px;
+      padding: 20px;
+      font-size: 14px;
+      line-height: 1.9;
+      color: #444;
+      margin-bottom: 24px;
+      text-align: left;
+      border-left: 4px solid #6C63FF;
+    }
+    .stamp-grid {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .stamp {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      animation: pop 0.4s ease backwards;
+    }
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── ADMIN ── */
+    #screen-admin { background: #0f0c1d; color: #fff; padding-bottom: 48px; }
+    .admin-header {
+      background: linear-gradient(160deg, #1a1040, #0f0c1d);
+      padding: 44px 24px 32px;
+      text-align: center;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .admin-cross { font-size: 32px; color: #a78bfa; margin-bottom: 8px; }
+    .admin-title { font-size: 28px; font-weight: 900; letter-spacing: 3px; color: #fff; margin-bottom: 6px; }
+    .admin-sub { font-size: 13px; color: #a78bfa; letter-spacing: 3px; margin-bottom: 16px; }
+    .switch-btn {
+      background: transparent;
+      border: 1px solid #a78bfa;
+      color: #a78bfa;
+      padding: 9px 22px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .stats-row { display: flex; gap: 12px; padding: 24px 16px 0; }
+    .stat-card {
+      flex: 1;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-radius: 16px;
+      padding: 16px 8px;
+      text-align: center;
+      border: 1px solid #ffffff18;
+    }
+    .stat-num { font-size: 34px; font-weight: 900; color: #fff; }
+    .stat-label { font-size: 11px; color: #94a3b8; margin-top: 4px; letter-spacing: 1px; }
+
+    .section-title {
+      padding: 28px 20px 12px;
+      font-size: 13px;
+      color: #a78bfa;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .admin-booth-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 0 16px;
+    }
+    .admin-booth-card {
+      background: #1a1535;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .admin-booth-card.open {
+      grid-column: span 2;
+    }
+    .admin-booth-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    .admin-booth-name { font-weight: 700; font-size: 14px; color: #fff; margin-bottom: 4px; }
+    .admin-booth-count { font-size: 13px; color: #888; }
+    .admin-booth-count span { font-weight: 700; }
+
+    .qr-expand {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #ffffff18;
+    }
+    .qr-expand.show { display: flex; }
+    .qr-wrap { border-radius: 12px; overflow: hidden; background: #fff; padding: 8px; }
+    .qr-url { font-size: 9px; color: #94a3b8; word-break: break-all; text-align: center; max-width: 280px; }
+    .qr-hint { font-size: 12px; color: #a78bfa; }
+
+    .reset-btn {
+      display: block;
+      margin: 32px auto 0;
+      background: transparent;
+      border: 1px solid #ff4d4d44;
+      color: #ff6b6b;
+      padding: 11px 28px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    /* ── Loading ── */
+    #screen-loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      background: #f8f6ff;
+    }
+    #screen-loading.active { display: flex; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid #e8e8ff;
+      border-top: 4px solid #6C63FF;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: #6C63FF; font-weight: 700; font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<!-- ── LOADING ── -->
+<div id="screen-loading" class="screen">
+  <div class="spinner"></div>
+  <div class="loading-text">체크인 중...</div>
+</div>
+
+<!-- ── HOME ── -->
+<div id="screen-home" class="screen">
+  <div class="home-header">
+    <div class="home-cross">✝</div>
+    <div class="home-title">사역박람회</div>
+    <div class="home-sub">Ministry Fair 2025</div>
+  </div>
+  <div class="complete-banner" id="home-complete-banner">
+    🎁 모든 부스 완주! 완주 화면을 운영팀에게 보여주세요 →
+  </div>
+  <div class="progress-section">
+    <div class="progress-label">방문한 부스: <strong id="home-count">0</strong> / <span id="home-total">0</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="home-progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="booth-grid" id="home-booth-grid"></div>
+  <button class="admin-link" onclick="showAdmin()">⚙ 관리자 모드</button>
+</div>
+
+<!-- ── CHECK-IN RESULT ── -->
+<div id="screen-checkin" class="screen">
+  <div class="checkin-card">
+    <div class="big-icon" id="ci-icon"></div>
+    <div class="checkin-title" id="ci-title"></div>
+    <div class="booth-badge" id="ci-badge"></div>
+    <div class="progress-section" style="padding:0 0 8px">
+      <div class="progress-label">방문한 부스: <strong id="ci-count">0</strong> / <span id="ci-total">0</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="ci-fill" style="width:0%"></div></div>
+    </div>
+    <div class="dot-row" id="ci-dots"></div>
+    <button class="back-btn" id="ci-back-btn">내 방문 현황 보기</button>
+  </div>
+</div>
+
+<!-- ── COMPLETE ── -->
+<div id="screen-complete" class="screen">
+  <div class="complete-card">
+    <div class="trophy">🏆</div>
+    <div class="complete-title">모든 부스 완주!</div>
+    <div class="complete-sub">Ministry Fair 2025</div>
+    <div class="complete-msg" id="complete-msg"></div>
+    <div class="stamp-grid" id="complete-stamps"></div>
+    <button class="back-btn" onclick="showHome()">내 방문 현황 보기</button>
+  </div>
+</div>
+
+<!-- ── ADMIN ── -->
+<div id="screen-admin" class="screen">
+  <div class="admin-header">
+    <div class="admin-cross">✝</div>
+    <div class="admin-title">관리자 모드</div>
+    <div class="admin-sub">Ministry Fair 2025</div>
+    <button class="switch-btn" onclick="showHome()">← 참가자 화면</button>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-label">총 참가자</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#6C63FF,#a78bfa)">
+      <div class="stat-num" id="stat-complete">0</div>
+      <div class="stat-label">완주자 🎁</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#4ECDC4,#06b6d4)">
+      <div class="stat-num" id="stat-booths">0</div>
+      <div class="stat-label">총 부스</div>
+    </div>
+  </div>
+  <div class="section-title">부스별 QR 코드</div>
+  <div class="admin-booth-grid" id="admin-booth-grid"></div>
+  <button class="reset-btn" onclick="resetData()">🗑 데이터 초기화</button>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const BOOTHS = [
+  { id: "worship",   name: "예배 사역",   icon: "🎵", color: "#6C63FF" },
+  { id: "children",  name: "어린이 사역", icon: "👶", color: "#FF6584" },
+  { id: "youth",     name: "청소년 사역", icon: "⚡", color: "#F5A623" },
+  { id: "community", name: "구역/셀 사역",icon: "🏠", color: "#4ECDC4" },
+  { id: "mission",   name: "선교 사역",   icon: "🌍", color: "#45B7D1" },
+  { id: "prayer",    name: "기도 사역",   icon: "🙏", color: "#96CEB4" },
+];
+
+const GIFT_MESSAGE = `🎁 축하합니다!\n\n모든 부스를 방문하셨습니다.\n이 화면을 안내 데스크에 보여주시면\n선물을 수령하실 수 있습니다.\n\n하나님의 은혜가 함께하시길 바랍니다! ✨`;
+
+const STORAGE_KEY = "ministry_fair_v2";
+const USER_KEY    = "ministry_fair_user";
+
+// ── STORAGE ─────────────────────────────────────────────────────────────────
+function getAll() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
+}
+function getUserId() {
+  let id = localStorage.getItem(USER_KEY);
+  if (!id) { id = "u_" + Math.random().toString(36).slice(2, 10); localStorage.setItem(USER_KEY, id); }
+  return id;
+}
+function getMyVisits() {
+  return getAll()[getUserId()] || [];
+}
+function recordVisit(boothId) {
+  const all = getAll();
+  const uid = getUserId();
+  if (!all[uid]) all[uid] = [];
+  if (!all[uid].includes(boothId)) all[uid].push(boothId);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  return all[uid];
+}
+
+// ── ROUTING ─────────────────────────────────────────────────────────────────
+let openBoothId = null;
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + id).classList.add("active");
+}
+
+function showHome() {
+  renderHome();
+  showScreen("home");
+}
+function showAdmin() {
+  renderAdmin();
+  showScreen("admin");
+}
+
+// ── HOME ─────────────────────────────────────────────────────────────────────
+function renderHome() {
+  const visited = getMyVisits();
+  const total   = BOOTHS.length;
+  const count   = visited.length;
+
+  document.getElementById("home-count").textContent = count;
+  document.getElementById("home-total").textContent = total;
+  document.getElementById("home-progress-fill").style.width = (count / total * 100) + "%";
+
+  const banner = document.getElementById("home-complete-banner");
+  if (count === total) {
+    banner.classList.add("show");
+    banner.onclick = () => showComplete(visited);
+  } else {
+    banner.classList.remove("show");
+  }
+
+  const grid = document.getElementById("home-booth-grid");
+  grid.innerHTML = "";
+  BOOTHS.forEach(booth => {
+    const v = visited.includes(booth.id);
+    const tile = document.createElement("div");
+    tile.className = "booth-tile" + (v ? " visited" : "");
+    tile.style.borderColor = v ? booth.color : "#e0deff";
+    tile.style.background  = v ? booth.color + "18" : "#fff";
+    tile.innerHTML = `
+      <div class="booth-tile-icon">${booth.icon}</div>
+      <div class="booth-tile-name">${booth.name}</div>
+      ${v ? `<div class="booth-tile-check" style="color:${booth.color}">✓</div>` : ""}
+    `;
+    grid.appendChild(tile);
+  });
+}
+
+// ── CHECK-IN ─────────────────────────────────────────────────────────────────
+function doCheckin(boothId) {
+  const booth = BOOTHS.find(b => b.id === boothId);
+  if (!booth) { showHome(); return; }
+
+  showScreen("loading");
+
+  setTimeout(() => {
+    const before  = getMyVisits();
+    const already = before.includes(boothId);
+    const visited = already ? before : recordVisit(boothId);
+
+    if (!already && visited.length === BOOTHS.length) {
+      showComplete(visited);
+      return;
+    }
+
+    // Render checkin card
+    const icon  = document.getElementById("ci-icon");
+    const title = document.getElementById("ci-title");
+    const badge = document.getElementById("ci-badge");
+
+    if (already) {
+      icon.textContent = "!";
+      icon.style.background = "#aaa";
+      title.textContent = "이미 방문한 부스예요";
+    } else {
+      icon.textContent = "✓";
+      icon.style.background = booth.color;
+      title.textContent = "체크인 완료!";
+    }
+
+    badge.textContent = booth.icon + " " + booth.name;
+    badge.style.background = booth.color;
+
+    document.getElementById("ci-count").textContent = visited.length;
+    document.getElementById("ci-total").textContent = BOOTHS.length;
+    document.getElementById("ci-fill").style.width = (visited.length / BOOTHS.length * 100) + "%";
+    document.getElementById("ci-fill").style.background = booth.color;
+
+    const dots = document.getElementById("ci-dots");
+    dots.innerHTML = "";
+    BOOTHS.forEach(b => {
+      const dot = document.createElement("div");
+      dot.className = "dot";
+      dot.title = b.name;
+      dot.style.background = visited.includes(b.id) ? b.color : "#ddd";
+      dot.textContent = visited.includes(b.id) ? "✓" : "";
+      dots.appendChild(dot);
+    });
+
+    document.getElementById("ci-back-btn").onclick = showHome;
+    showScreen("checkin");
+  }, 700);
+}
+
+// ── COMPLETE ─────────────────────────────────────────────────────────────────
+function showComplete(visited) {
+  // Message
+  document.getElementById("complete-msg").innerHTML =
+    GIFT_MESSAGE.split("\n").map(l => l ? `<span>${l}</span>` : "<br>").join("<br>");
+
+  // Stamps
+  const grid = document.getElementById("complete-stamps");
+  grid.innerHTML = "";
+  BOOTHS.forEach((b, i) => {
+    const s = document.createElement("div");
+    s.className = "stamp";
+    s.style.background = b.color;
+    s.style.animationDelay = (i * 0.08) + "s";
+    s.textContent = b.icon;
+    grid.appendChild(s);
+  });
+
+  showScreen("complete");
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────────────
+function renderAdmin() {
+  const all   = getAll();
+  const total = Object.keys(all).length;
+  const done  = Object.values(all).filter(v => v.length === BOOTHS.length).length;
+
+  document.getElementById("stat-total").textContent    = total;
+  document.getElementById("stat-complete").textContent = done;
+  document.getElementById("stat-booths").textContent   = BOOTHS.length;
+
+  const baseUrl = window.location.href.split("?")[0];
+  const grid    = document.getElementById("admin-booth-grid");
+  grid.innerHTML = "";
+
+  BOOTHS.forEach(booth => {
+    const count   = Object.values(all).filter(v => v.includes(booth.id)).length;
+    const checkUrl = baseUrl + "?booth=" + booth.id;
+    const isOpen  = openBoothId === booth.id;
+
+    const card = document.createElement("div");
+    card.className = "admin-booth-card" + (isOpen ? " open" : "");
+    card.style.borderColor  = booth.color;
+    card.style.boxShadow    = isOpen ? `0 0 0 3px ${booth.color}50` : "0 4px 20px rgba(0,0,0,0.2)";
+
+    card.innerHTML = `
+      <div class="admin-booth-icon" style="background:${booth.color}">${booth.icon}</div>
+      <div class="admin-booth-name">${booth.name}</div>
+      <div class="admin-booth-count"><span style="color:${booth.color}">${count}</span> 명 방문</div>
+      <div class="qr-expand ${isOpen ? 'show' : ''}" id="qr-${booth.id}">
+        <div class="qr-wrap" id="qrbox-${booth.id}"></div>
+        <div class="qr-url">${checkUrl}</div>
+        <div class="qr-hint">📱 스마트폰으로 스캔하세요</div>
+      </div>
+    `;
+
+    card.onclick = () => {
+      openBoothId = isOpen ? null : booth.id;
+      renderAdmin();
+    };
+
+    grid.appendChild(card);
+
+    // Generate QR if open
+    if (isOpen) {
+      setTimeout(() => {
+        const box = document.getElementById("qrbox-" + booth.id);
+        if (box && box.children.length === 0) {
+          new QRCode(box, {
+            text: checkUrl,
+            width: 180,
+            height: 180,
+            colorDark: booth.color,
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M,
+          });
+        }
+      }, 50);
+    }
+  });
+}
+
+function resetData() {
+  if (confirm("모든 체크인 데이터를 초기화할까요?\n(취소할 수 없습니다)")) {
+    localStorage.removeItem(STORAGE_KEY);
+    renderAdmin();
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(function init() {
+  const params  = new URLSearchParams(window.location.search);
+  const boothId = params.get("booth");
+  if (boothId) {
+    doCheckin(boothId);
+  } else {
+    showHome();
+  }
+})();
+</script>
+</body>
+</html>
