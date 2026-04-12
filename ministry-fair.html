@@ -10,12 +10,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans KR', sans-serif; background: #f8f6ff; min-height: 100vh; }
 
-    /* ── Screens ── */
     .screen { display: none; min-height: 100vh; }
     .screen.active { display: block; }
 
     /* ── HOME ── */
-    #screen-home { background: #f8f6ff; }
     .home-header {
       background: linear-gradient(160deg, #6C63FF, #a78bfa);
       padding: 48px 24px 36px;
@@ -34,6 +32,7 @@
       font-weight: 700;
       font-size: 14px;
       display: none;
+      cursor: pointer;
     }
     .complete-banner.show { display: block; }
 
@@ -67,13 +66,10 @@
       transition: all 0.3s;
       opacity: 0.45;
     }
-    .booth-tile.visited {
-      opacity: 1;
-    }
+    .booth-tile.visited { opacity: 1; }
     .booth-tile-icon { font-size: 28px; }
     .booth-tile-name { font-size: 11px; font-weight: 700; color: #333; line-height: 1.3; }
-    .booth-tile-check { font-size: 18px; color: #6C63FF; font-weight: 900; }
-
+    .booth-tile-check { font-size: 18px; font-weight: 900; }
     .admin-link {
       display: block;
       margin: 8px auto 24px;
@@ -105,235 +101,133 @@
       text-align: center;
     }
     .big-icon {
-      width: 80px;
-      height: 80px;
+      width: 80px; height: 80px;
       border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; color: #fff;
       margin: 0 auto 16px;
-      font-weight: 900;
     }
     .checkin-title { font-size: 22px; font-weight: 900; color: #1a1a2e; margin-bottom: 10px; }
     .booth-badge {
-      display: inline-block;
-      color: #fff;
-      border-radius: 20px;
-      padding: 7px 20px;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 28px;
+      display: inline-block; color: #fff;
+      border-radius: 20px; padding: 7px 20px;
+      font-size: 14px; font-weight: 700; margin-bottom: 28px;
     }
-    .dot-row {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
+    .dot-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
     .dot {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      color: #fff;
-      font-weight: 900;
-      background: #ddd;
-      transition: background 0.3s;
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: #fff; font-weight: 900;
+      background: #ddd; transition: background 0.3s;
     }
     .back-btn {
-      background: #6C63FF;
-      color: #fff;
-      border: none;
-      padding: 13px 36px;
-      border-radius: 24px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 20px;
-      font-family: inherit;
-      width: 100%;
+      background: #6C63FF; color: #fff; border: none;
+      padding: 13px 36px; border-radius: 24px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      margin-top: 20px; font-family: inherit; width: 100%;
     }
 
     /* ── COMPLETE ── */
     #screen-complete {
       display: none;
-      align-items: center;
-      justify-content: center;
+      align-items: center; justify-content: center;
       background: linear-gradient(160deg, #1a1040, #6C63FF);
       padding: 24px;
     }
     #screen-complete.active { display: flex; }
-
     .complete-card {
-      background: #fff;
-      border-radius: 28px;
-      padding: 40px 28px;
-      max-width: 360px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+      background: #fff; border-radius: 28px;
+      padding: 40px 28px; max-width: 360px; width: 100%;
+      text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.3);
     }
     .trophy { font-size: 72px; margin-bottom: 8px; animation: bounce 1s infinite alternate; }
     @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
-
     .complete-title { font-size: 26px; font-weight: 900; color: #1a1040; margin-bottom: 6px; }
     .complete-sub { font-size: 13px; color: #888; margin-bottom: 20px; }
     .complete-msg {
-      background: #f8f6ff;
-      border-radius: 16px;
-      padding: 20px;
-      font-size: 14px;
-      line-height: 1.9;
-      color: #444;
-      margin-bottom: 24px;
-      text-align: left;
+      background: #f8f6ff; border-radius: 16px;
+      padding: 20px; font-size: 14px; line-height: 1.9;
+      color: #444; margin-bottom: 24px; text-align: left;
       border-left: 4px solid #6C63FF;
     }
-    .stamp-grid {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
+    .stamp-grid { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
     .stamp {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      animation: pop 0.4s ease backwards;
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; animation: pop 0.4s ease backwards;
     }
-    @keyframes pop {
-      from { transform: scale(0); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+    @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     /* ── ADMIN ── */
     #screen-admin { background: #0f0c1d; color: #fff; padding-bottom: 48px; }
     .admin-header {
       background: linear-gradient(160deg, #1a1040, #0f0c1d);
-      padding: 44px 24px 32px;
-      text-align: center;
+      padding: 44px 24px 32px; text-align: center;
       border-bottom: 1px solid #ffffff18;
     }
     .admin-cross { font-size: 32px; color: #a78bfa; margin-bottom: 8px; }
     .admin-title { font-size: 28px; font-weight: 900; letter-spacing: 3px; color: #fff; margin-bottom: 6px; }
     .admin-sub { font-size: 13px; color: #a78bfa; letter-spacing: 3px; margin-bottom: 16px; }
     .switch-btn {
-      background: transparent;
-      border: 1px solid #a78bfa;
-      color: #a78bfa;
-      padding: 9px 22px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 13px;
-      font-family: inherit;
+      background: transparent; border: 1px solid #a78bfa;
+      color: #a78bfa; padding: 9px 22px; border-radius: 20px;
+      cursor: pointer; font-size: 13px; font-family: inherit;
     }
-
     .stats-row { display: flex; gap: 12px; padding: 24px 16px 0; }
     .stat-card {
-      flex: 1;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border-radius: 16px;
-      padding: 16px 8px;
-      text-align: center;
-      border: 1px solid #ffffff18;
+      flex: 1; background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-radius: 16px; padding: 16px 8px;
+      text-align: center; border: 1px solid #ffffff18;
     }
     .stat-num { font-size: 34px; font-weight: 900; color: #fff; }
     .stat-label { font-size: 11px; color: #94a3b8; margin-top: 4px; letter-spacing: 1px; }
-
-    .section-title {
-      padding: 28px 20px 12px;
-      font-size: 13px;
-      color: #a78bfa;
-      letter-spacing: 3px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .admin-booth-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      padding: 0 16px;
-    }
+    .section-title { padding: 28px 20px 12px; font-size: 13px; color: #a78bfa; letter-spacing: 3px; font-weight: 700; }
+    .admin-booth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
     .admin-booth-card {
-      background: #1a1535;
-      border-radius: 16px;
-      padding: 16px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.2s;
+      background: #1a1535; border-radius: 16px; padding: 16px;
+      border: 1px solid transparent; cursor: pointer; transition: all 0.2s;
     }
-    .admin-booth-card.open {
-      grid-column: span 2;
-    }
+    .admin-booth-card.open { grid-column: span 2; }
     .admin-booth-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      margin-bottom: 8px;
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 8px;
     }
     .admin-booth-name { font-weight: 700; font-size: 14px; color: #fff; margin-bottom: 4px; }
     .admin-booth-count { font-size: 13px; color: #888; }
-    .admin-booth-count span { font-weight: 700; }
-
     .qr-expand {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-top: 16px;
-      padding-top: 16px;
+      display: none; flex-direction: column; align-items: center;
+      gap: 10px; margin-top: 16px; padding-top: 16px;
       border-top: 1px solid #ffffff18;
     }
     .qr-expand.show { display: flex; }
     .qr-wrap { border-radius: 12px; overflow: hidden; background: #fff; padding: 8px; }
     .qr-url { font-size: 9px; color: #94a3b8; word-break: break-all; text-align: center; max-width: 280px; }
     .qr-hint { font-size: 12px; color: #a78bfa; }
-
     .reset-btn {
-      display: block;
-      margin: 32px auto 0;
-      background: transparent;
-      border: 1px solid #ff4d4d44;
-      color: #ff6b6b;
-      padding: 11px 28px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 13px;
-      font-family: inherit;
+      display: block; margin: 32px auto 0;
+      background: transparent; border: 1px solid #ff4d4d44;
+      color: #ff6b6b; padding: 11px 28px; border-radius: 20px;
+      cursor: pointer; font-size: 13px; font-family: inherit;
     }
+    .live-badge {
+      display: inline-block; background: #22c55e;
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-    /* ── Loading ── */
+    /* ── LOADING ── */
     #screen-loading {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 16px;
-      background: #f8f6ff;
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px; background: #f8f6ff;
     }
     #screen-loading.active { display: flex; }
     .spinner {
       width: 48px; height: 48px;
-      border: 4px solid #e8e8ff;
-      border-top: 4px solid #6C63FF;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      border: 4px solid #e8e8ff; border-top: 4px solid #6C63FF;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { color: #6C63FF; font-weight: 700; font-size: 15px; }
@@ -396,17 +290,17 @@
 <div id="screen-admin" class="screen">
   <div class="admin-header">
     <div class="admin-cross">✝</div>
-    <div class="admin-title">관리자 모드</div>
+    <div class="admin-title">관리자 모드 <span class="live-badge">LIVE</span></div>
     <div class="admin-sub">Ministry Fair 2025</div>
     <button class="switch-btn" onclick="showHome()">← 참가자 화면</button>
   </div>
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-num" id="stat-total">-</div>
       <div class="stat-label">총 참가자</div>
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,#6C63FF,#a78bfa)">
-      <div class="stat-num" id="stat-complete">0</div>
+      <div class="stat-num" id="stat-complete">-</div>
       <div class="stat-label">완주자 🎁</div>
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,#4ECDC4,#06b6d4)">
@@ -419,66 +313,78 @@
   <button class="reset-btn" onclick="resetData()">🗑 데이터 초기화</button>
 </div>
 
-<script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBkpMisJ6ocQUf53Jefu_uuEmaORL52q7U",
+  authDomain: "ministry-fair-4e2fe.firebaseapp.com",
+  projectId: "ministry-fair-4e2fe",
+  storageBucket: "ministry-fair-4e2fe.firebasestorage.app",
+  messagingSenderId: "614981866201",
+  appId: "1:614981866201:web:deaa116b5a8d138cdc64c8"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
 const BOOTHS = [
-  { id: "worship",   name: "예배 사역",   icon: "🎵", color: "#6C63FF" },
-  { id: "children",  name: "어린이 사역", icon: "👶", color: "#FF6584" },
-  { id: "youth",     name: "청소년 사역", icon: "⚡", color: "#F5A623" },
-  { id: "community", name: "구역/셀 사역",icon: "🏠", color: "#4ECDC4" },
-  { id: "mission",   name: "선교 사역",   icon: "🌍", color: "#45B7D1" },
-  { id: "prayer",    name: "기도 사역",   icon: "🙏", color: "#96CEB4" },
+  { id: "worship",   name: "예배 사역",    icon: "🎵", color: "#6C63FF" },
+  { id: "children",  name: "어린이 사역",  icon: "👶", color: "#FF6584" },
+  { id: "youth",     name: "청소년 사역",  icon: "⚡", color: "#F5A623" },
+  { id: "community", name: "구역/셀 사역", icon: "🏠", color: "#4ECDC4" },
+  { id: "mission",   name: "선교 사역",    icon: "🌍", color: "#45B7D1" },
+  { id: "prayer",    name: "기도 사역",    icon: "🙏", color: "#96CEB4" },
 ];
-
 const GIFT_MESSAGE = `🎁 축하합니다!\n\n모든 부스를 방문하셨습니다.\n이 화면을 안내 데스크에 보여주시면\n선물을 수령하실 수 있습니다.\n\n하나님의 은혜가 함께하시길 바랍니다! ✨`;
+const BASE_URL = window.location.href.split("?")[0];
 
-const STORAGE_KEY = "ministry_fair_v2";
-const USER_KEY    = "ministry_fair_user";
-
-// ── STORAGE ─────────────────────────────────────────────────────────────────
-function getAll() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
-}
+// ── User ID: URL 파라미터로 관리 (Safari localStorage 제한 우회) ──────────────
 function getUserId() {
-  let id = localStorage.getItem(USER_KEY);
-  if (!id) { id = "u_" + Math.random().toString(36).slice(2, 10); localStorage.setItem(USER_KEY, id); }
-  return id;
-}
-function getMyVisits() {
-  return getAll()[getUserId()] || [];
-}
-function recordVisit(boothId) {
-  const all = getAll();
-  const uid = getUserId();
-  if (!all[uid]) all[uid] = [];
-  if (!all[uid].includes(boothId)) all[uid].push(boothId);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  return all[uid];
+  const params = new URLSearchParams(window.location.search);
+  let uid = params.get("uid");
+  if (!uid) {
+    uid = "u_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    params.set("uid", uid);
+    window.history.replaceState({}, "", window.location.pathname + "?" + params.toString());
+  }
+  return uid;
 }
 
-// ── ROUTING ─────────────────────────────────────────────────────────────────
-let openBoothId = null;
+// ── Firestore helpers ────────────────────────────────────────────────────────
+async function getVisited(uid) {
+  try {
+    const snap = await getDoc(doc(db, "checkins", uid));
+    return snap.exists() ? (snap.data().visited || []) : [];
+  } catch { return []; }
+}
 
+async function saveVisit(uid, boothId) {
+  const visited = await getVisited(uid);
+  if (visited.includes(boothId)) return visited;
+  const updated = [...visited, boothId];
+  await setDoc(doc(db, "checkins", uid), { visited: updated, updatedAt: new Date() }, { merge: true });
+  return updated;
+}
+
+// ── Screen ───────────────────────────────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById("screen-" + id).classList.add("active");
 }
 
-function showHome() {
-  renderHome();
-  showScreen("home");
-}
-function showAdmin() {
-  renderAdmin();
-  showScreen("admin");
-}
-
 // ── HOME ─────────────────────────────────────────────────────────────────────
-function renderHome() {
-  const visited = getMyVisits();
-  const total   = BOOTHS.length;
-  const count   = visited.length;
+async function showHome() {
+  showScreen("home");
+  const visited = await getVisited(getUserId());
+  renderHome(visited);
+}
 
+function renderHome(visited) {
+  const total = BOOTHS.length;
+  const count = visited.length;
   document.getElementById("home-count").textContent = count;
   document.getElementById("home-total").textContent = total;
   document.getElementById("home-progress-fill").style.width = (count / total * 100) + "%";
@@ -486,7 +392,7 @@ function renderHome() {
   const banner = document.getElementById("home-complete-banner");
   if (count === total) {
     banner.classList.add("show");
-    banner.onclick = () => showComplete(visited);
+    banner.onclick = () => renderComplete(visited);
   } else {
     banner.classList.remove("show");
   }
@@ -494,7 +400,7 @@ function renderHome() {
   const grid = document.getElementById("home-booth-grid");
   grid.innerHTML = "";
   BOOTHS.forEach(booth => {
-    const v = visited.includes(booth.id);
+    const v    = visited.includes(booth.id);
     const tile = document.createElement("div");
     tile.className = "booth-tile" + (v ? " visited" : "");
     tile.style.borderColor = v ? booth.color : "#e0deff";
@@ -509,68 +415,61 @@ function renderHome() {
 }
 
 // ── CHECK-IN ─────────────────────────────────────────────────────────────────
-function doCheckin(boothId) {
+async function doCheckin(boothId) {
   const booth = BOOTHS.find(b => b.id === boothId);
   if (!booth) { showHome(); return; }
 
   showScreen("loading");
+  const uid     = getUserId();
+  const before  = await getVisited(uid);
+  const already = before.includes(boothId);
+  const visited = already ? before : await saveVisit(uid, boothId);
 
-  setTimeout(() => {
-    const before  = getMyVisits();
-    const already = before.includes(boothId);
-    const visited = already ? before : recordVisit(boothId);
+  if (!already && visited.length === BOOTHS.length) {
+    renderComplete(visited);
+    return;
+  }
 
-    if (!already && visited.length === BOOTHS.length) {
-      showComplete(visited);
-      return;
-    }
+  const icon  = document.getElementById("ci-icon");
+  const title = document.getElementById("ci-title");
+  const badge = document.getElementById("ci-badge");
 
-    // Render checkin card
-    const icon  = document.getElementById("ci-icon");
-    const title = document.getElementById("ci-title");
-    const badge = document.getElementById("ci-badge");
+  if (already) {
+    icon.textContent = "!";
+    icon.style.background = "#aaa";
+    title.textContent = "이미 방문한 부스예요";
+  } else {
+    icon.textContent = "✓";
+    icon.style.background = booth.color;
+    title.textContent = "체크인 완료!";
+  }
+  badge.textContent = booth.icon + " " + booth.name;
+  badge.style.background = booth.color;
 
-    if (already) {
-      icon.textContent = "!";
-      icon.style.background = "#aaa";
-      title.textContent = "이미 방문한 부스예요";
-    } else {
-      icon.textContent = "✓";
-      icon.style.background = booth.color;
-      title.textContent = "체크인 완료!";
-    }
+  document.getElementById("ci-count").textContent = visited.length;
+  document.getElementById("ci-total").textContent = BOOTHS.length;
+  document.getElementById("ci-fill").style.width  = (visited.length / BOOTHS.length * 100) + "%";
+  document.getElementById("ci-fill").style.background = booth.color;
 
-    badge.textContent = booth.icon + " " + booth.name;
-    badge.style.background = booth.color;
+  const dots = document.getElementById("ci-dots");
+  dots.innerHTML = "";
+  BOOTHS.forEach(b => {
+    const dot = document.createElement("div");
+    dot.className = "dot";
+    dot.title = b.name;
+    dot.style.background = visited.includes(b.id) ? b.color : "#ddd";
+    dot.textContent = visited.includes(b.id) ? "✓" : "";
+    dots.appendChild(dot);
+  });
 
-    document.getElementById("ci-count").textContent = visited.length;
-    document.getElementById("ci-total").textContent = BOOTHS.length;
-    document.getElementById("ci-fill").style.width = (visited.length / BOOTHS.length * 100) + "%";
-    document.getElementById("ci-fill").style.background = booth.color;
-
-    const dots = document.getElementById("ci-dots");
-    dots.innerHTML = "";
-    BOOTHS.forEach(b => {
-      const dot = document.createElement("div");
-      dot.className = "dot";
-      dot.title = b.name;
-      dot.style.background = visited.includes(b.id) ? b.color : "#ddd";
-      dot.textContent = visited.includes(b.id) ? "✓" : "";
-      dots.appendChild(dot);
-    });
-
-    document.getElementById("ci-back-btn").onclick = showHome;
-    showScreen("checkin");
-  }, 700);
+  document.getElementById("ci-back-btn").onclick = showHome;
+  showScreen("checkin");
 }
 
 // ── COMPLETE ─────────────────────────────────────────────────────────────────
-function showComplete(visited) {
-  // Message
+function renderComplete(visited) {
   document.getElementById("complete-msg").innerHTML =
     GIFT_MESSAGE.split("\n").map(l => l ? `<span>${l}</span>` : "<br>").join("<br>");
-
-  // Stamps
   const grid = document.getElementById("complete-stamps");
   grid.innerHTML = "";
   BOOTHS.forEach((b, i) => {
@@ -581,61 +480,63 @@ function showComplete(visited) {
     s.textContent = b.icon;
     grid.appendChild(s);
   });
-
   showScreen("complete");
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────────────────────
-function renderAdmin() {
-  const all   = getAll();
-  const total = Object.keys(all).length;
-  const done  = Object.values(all).filter(v => v.length === BOOTHS.length).length;
+let adminUnsubscribe = null;
+let openBoothId = null;
 
-  document.getElementById("stat-total").textContent    = total;
-  document.getElementById("stat-complete").textContent = done;
-  document.getElementById("stat-booths").textContent   = BOOTHS.length;
+window.showAdmin = function() {
+  showScreen("admin");
+  document.getElementById("stat-booths").textContent = BOOTHS.length;
+  if (adminUnsubscribe) adminUnsubscribe();
+  adminUnsubscribe = onSnapshot(collection(db, "checkins"), (snapshot) => {
+    const all   = {};
+    snapshot.forEach(d => { all[d.id] = d.data().visited || []; });
+    const total = Object.keys(all).length;
+    const done  = Object.values(all).filter(v => v.length === BOOTHS.length).length;
+    document.getElementById("stat-total").textContent    = total;
+    document.getElementById("stat-complete").textContent = done;
+    renderAdminBooths(all);
+  });
+};
 
-  const baseUrl = window.location.href.split("?")[0];
-  const grid    = document.getElementById("admin-booth-grid");
+function renderAdminBooths(all) {
+  const grid = document.getElementById("admin-booth-grid");
   grid.innerHTML = "";
-
   BOOTHS.forEach(booth => {
-    const count   = Object.values(all).filter(v => v.includes(booth.id)).length;
-    const checkUrl = baseUrl + "?booth=" + booth.id;
-    const isOpen  = openBoothId === booth.id;
+    const count    = Object.values(all).filter(v => v.includes(booth.id)).length;
+    const checkUrl = BASE_URL + "?booth=" + booth.id;
+    const isOpen   = openBoothId === booth.id;
 
     const card = document.createElement("div");
     card.className = "admin-booth-card" + (isOpen ? " open" : "");
-    card.style.borderColor  = booth.color;
-    card.style.boxShadow    = isOpen ? `0 0 0 3px ${booth.color}50` : "0 4px 20px rgba(0,0,0,0.2)";
-
+    card.style.borderColor = booth.color;
+    card.style.boxShadow   = isOpen ? `0 0 0 3px ${booth.color}50` : "0 4px 20px rgba(0,0,0,0.2)";
     card.innerHTML = `
       <div class="admin-booth-icon" style="background:${booth.color}">${booth.icon}</div>
       <div class="admin-booth-name">${booth.name}</div>
-      <div class="admin-booth-count"><span style="color:${booth.color}">${count}</span> 명 방문</div>
+      <div class="admin-booth-count"><span style="color:${booth.color};font-weight:700">${count}</span> 명 방문</div>
       <div class="qr-expand ${isOpen ? 'show' : ''}" id="qr-${booth.id}">
         <div class="qr-wrap" id="qrbox-${booth.id}"></div>
         <div class="qr-url">${checkUrl}</div>
         <div class="qr-hint">📱 스마트폰으로 스캔하세요</div>
       </div>
     `;
-
     card.onclick = () => {
       openBoothId = isOpen ? null : booth.id;
-      renderAdmin();
+      renderAdminBooths(all);
     };
-
     grid.appendChild(card);
 
-    // Generate QR if open
     if (isOpen) {
       setTimeout(() => {
         const box = document.getElementById("qrbox-" + booth.id);
         if (box && box.children.length === 0) {
           new QRCode(box, {
             text: checkUrl,
-            width: 180,
-            height: 180,
+            width: 180, height: 180,
             colorDark: booth.color,
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.M,
@@ -646,21 +547,23 @@ function renderAdmin() {
   });
 }
 
-function resetData() {
-  if (confirm("모든 체크인 데이터를 초기화할까요?\n(취소할 수 없습니다)")) {
-    localStorage.removeItem(STORAGE_KEY);
-    renderAdmin();
-  }
-}
+window.resetData = async function() {
+  if (!confirm("모든 체크인 데이터를 초기화할까요?\n(취소할 수 없습니다)")) return;
+  const snap = await getDocs(collection(db, "checkins"));
+  await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "checkins", d.id))));
+  alert("초기화 완료!");
+};
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-(function init() {
+window.showHome = showHome;
+
+(async function init() {
   const params  = new URLSearchParams(window.location.search);
   const boothId = params.get("booth");
   if (boothId) {
-    doCheckin(boothId);
+    await doCheckin(boothId);
   } else {
-    showHome();
+    await showHome();
   }
 })();
 </script>
