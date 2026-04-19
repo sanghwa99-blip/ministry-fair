@@ -370,12 +370,11 @@ const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
 const BOOTHS = [
-  { id: "worship",   name: "예배 사역",    icon: "🎵", color: "#6C63FF" },
-  { id: "children",  name: "어린이 사역",  icon: "👶", color: "#FF6584" },
-  { id: "youth",     name: "청소년 사역",  icon: "⚡", color: "#F5A623" },
-  { id: "community", name: "구역/셀 사역", icon: "🏠", color: "#4ECDC4" },
-  { id: "mission",   name: "선교 사역",    icon: "🌍", color: "#45B7D1" },
-  { id: "prayer",    name: "기도 사역",    icon: "🙏", color: "#96CEB4" },
+  { id: "worship",  name: "예배사역원", icon: "🎵", color: "#6C63FF" },
+  { id: "mission",  name: "선교사역원", icon: "🌍", color: "#FF6584" },
+  { id: "edu",      name: "교육사역원", icon: "📖", color: "#F5A623" },
+  { id: "admin",    name: "관리사역원", icon: "⚙️", color: "#4ECDC4" },
+  { id: "cell",     name: "셀사역원",   icon: "🏠", color: "#45B7D1" },
 ];
 const BOOTH_IDS   = BOOTHS.map(b => b.id);
 const GIFT_MESSAGE = `🎁 축하합니다!\n\n모든 부스를 방문하셨습니다.\n이 화면을 안내 데스크에 보여주시면\n선물을 수령하실 수 있습니다.\n\n하나님의 은혜가 함께하시길 바랍니다! ✨`;
