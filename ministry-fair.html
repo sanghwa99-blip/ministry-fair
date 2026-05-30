@@ -398,12 +398,17 @@ function showAdmin() {
   Object.keys(qrDone).forEach(k => delete qrDone[k]);
   openBoothId = null;
 
+  // 카드를 즉시 그림 (Firebase 응답 기다리지 않음)
+  renderAdminBooths({});
+
   adminUnsub = db.collection("checkins").onSnapshot(snapshot => {
     const all = {};
     snapshot.forEach(d => { all[d.id] = d.data().visited || []; });
     document.getElementById("stat-total").textContent    = Object.keys(all).length;
     document.getElementById("stat-complete").textContent = Object.values(all).filter(v => BOOTH_IDS.every(id => v.includes(id))).length;
     renderAdminBooths(all);
+  }, function(err) {
+    console.warn("Firebase error:", err);
   });
 }
 
