@@ -277,6 +277,658 @@
   <div class="home-header">
     <div class="home-cross">✝</div>
     <div class="home-title">사역박람회</div>
+    <div class="home-sub">Ministry Fair 2026</div>
+  </div>
+  <div class="complete-banner" id="home-complete-banner">
+    🎁 모든 부스 완주! 완주 화면을 운영팀에게 보여주세요 →
+  </div>
+  <div class="scan-btn-wrap">
+    <button class="scan-btn" onclick="openScanner()">
+      <span class="scan-icon">📷</span>
+      <span>QR 코드 스캔하기</span>
+    </button>
+  </div>
+  <div class="progress-section">
+    <div class="progress-label">방문한 부스: <strong id="home-count">0</strong> / <span id="home-total">0</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="home-progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="booth-grid" id="home-booth-grid"></div>
+  <button class="admin-link" onclick="showAdmin()">⚙ 관리자 모드</button>
+</div>
+
+<!-- ── CHECK-IN RESULT ── -->
+<div id="screen-checkin" class="screen">
+  <div class="checkin-card">
+    <div class="big-icon" id="ci-icon"></div>
+    <div class="checkin-title" id="ci-title"></div>
+    <div class="booth-badge" id="ci-badge"></div>
+    <div class="progress-section" style="padding:0 0 8px">
+      <div class="progress-label">방문한 부스: <strong id="ci-count">0</strong> / <span id="ci-total">0</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="ci-fill" style="width:0%"></div></div>
+    </div>
+    <div class="dot-row" id="ci-dots"></div>
+    <button class="back-btn" id="ci-back-btn">내 방문 현황 보기</button>
+  </div>
+</div>
+
+<!-- ── COMPLETE ── -->
+<div id="screen-complete" class="screen">
+  <div class="complete-card">
+    <div class="trophy">🏆</div>
+    <div class="complete-title">모든 부스 완주!</div>
+    <div class="complete-sub">Ministry Fair 2026</div>
+    <div class="complete-msg" id="complete-msg"></div>
+    <div class="stamp-grid" id="complete-stamps"></div>
+    <button class="back-btn" onclick="showHome()">내 방문 현황 보기</button>
+  </div>
+</div>
+
+<!-- ── ADMIN ── -->
+<div id="screen-admin" class="screen">
+  <div class="admin-header">
+    <div class="admin-cross">✝</div>
+    <div class="admin-title">관리자 모드 <span class="live-badge">LIVE</span></div>
+    <div class="admin-sub">Ministry Fair 2026</div>
+    <button class="switch-btn" onclick="showHome()">← 참가자 화면</button>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-total">-</div>
+      <div class="stat-label">총 참가자</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#6C63FF,#a78bfa)">
+      <div class="stat-num" id="stat-complete">-</div>
+      <div class="stat-label">완주자 🎁</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#4ECDC4,#06b6d4)">
+      <div class="stat-num" id="stat-booths">0</div>
+      <div class="stat-label">총 부스</div>
+    </div>
+  </div>
+  <div class="section-title">부스별 QR 코드</div>
+  <div class="admin-booth-grid" id="admin-booth-grid"></div>
+  <button class="reset-btn" onclick="resetData()">🗑 데이터 초기화</button>
+</div>
+
+<!-- jsQR for in-app scanning -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBkpMisJ6ocQUf53Jefu_uuEmaORL52q7U",
+  authDomain: "ministry-fair-4e2fe.firebaseapp.com",
+  projectId: "ministry-fair-4e2fe",
+  storageBucket: "ministry-fair-4e2fe.firebasestorage.app",
+  messagingSenderId: "614981866201",
+  appId: "1:614981866201:web:deaa116b5a8d138cdc64c8"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+const BOOTHS = [
+  { id: "worship",  name: "예배사역원", icon: "🎵", color: "#6C63FF" },
+  { id: "mission",  name: "선교사역원", icon: "🌍", color: "#FF6584" },
+  { id: "edu",      name: "교육사역원", icon: "📖", color: "#F5A623" },
+  { id: "admin",    name: "관리사역원", icon: "⚙️", color: "#4ECDC4" },
+  { id: "cell",     name: "셀사역원",   icon: "🏠", color: "#45B7D1" },
+];
+const BOOTH_IDS   = BOOTHS.map(b => b.id);
+const GIFT_MESSAGE = `🎁 축하합니다!\n\n모든 부스를 방문하셨습니다.\n이 화면을 안내 데스크에 보여주시면\n선물을 수령하실 수 있습니다.\n\n하나님의 은혜가 함께하시길 바랍니다! ✨`;
+const BASE_URL    = window.location.href.split("?")[0];
+
+// ── UID 관리: localStorage + sessionStorage 이중 저장 ────────────────────────
+// 같은 GitHub Pages 도메인 안에서는 localStorage가 정상 작동함
+// QR 스캔으로 새 탭이 열려도 같은 도메인이므로 uid가 유지됨
+function getUid() {
+  const LS_KEY = "mf_uid_v2";
+  const SS_KEY = "mf_uid_ss";
+  let uid = localStorage.getItem(LS_KEY) || sessionStorage.getItem(SS_KEY);
+  if (!uid) {
+    uid = "u_" + Math.random().toString(36).slice(2, 10) + "_" + Date.now().toString(36);
+    localStorage.setItem(LS_KEY, uid);
+    sessionStorage.setItem(SS_KEY, uid);
+  } else {
+    // 둘 다 최신으로 동기화
+    localStorage.setItem(LS_KEY, uid);
+    sessionStorage.setItem(SS_KEY, uid);
+  }
+  return uid;
+}
+
+// ── Firestore ────────────────────────────────────────────────────────────────
+async function getVisited(uid) {
+  try {
+    const snap = await getDoc(doc(db, "checkins", uid));
+    if (!snap.exists()) return [];
+    const data = snap.data();
+    // visited 필드가 배열인지 확인
+    return Array.isArray(data.visited) ? data.visited : [];
+  } catch { return []; }
+}
+
+async function saveVisit(uid, boothId) {
+  const visited = await getVisited(uid);
+  if (visited.includes(boothId)) return visited;
+  const updated = [...visited, boothId];
+  await setDoc(doc(db, "checkins", uid), {
+    visited: updated,
+    total: updated.length,
+    completed: updated.length === BOOTHS.length,
+    updatedAt: new Date()
+  }, { merge: true });
+  return updated;
+}
+
+// ── Screen ───────────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + id).classList.add("active");
+}
+
+// ── HOME ─────────────────────────────────────────────────────────────────────
+async function showHome() {
+  showScreen("home");
+  const visited = await getVisited(getUid());
+  renderHome(visited);
+}
+
+function renderHome(visited) {
+  const total = BOOTHS.length;
+  const count = visited.length;
+  document.getElementById("home-count").textContent = count;
+  document.getElementById("home-total").textContent = total;
+  document.getElementById("home-progress-fill").style.width = (count / total * 100) + "%";
+
+  const banner = document.getElementById("home-complete-banner");
+  if (count === total) {
+    banner.classList.add("show");
+    banner.onclick = () => renderComplete(visited);
+  } else {
+    banner.classList.remove("show");
+  }
+
+  const grid = document.getElementById("home-booth-grid");
+  grid.innerHTML = "";
+  BOOTHS.forEach(booth => {
+    const v    = visited.includes(booth.id);
+    const tile = document.createElement("div");
+    tile.className = "booth-tile" + (v ? " visited" : "");
+    tile.style.borderColor = v ? booth.color : "#e0deff";
+    tile.style.background  = v ? booth.color + "18" : "#fff";
+    tile.innerHTML = `
+      <div class="booth-tile-icon">${booth.icon}</div>
+      <div class="booth-tile-name">${booth.name}</div>
+      ${v ? `<div class="booth-tile-check" style="color:${booth.color}">✓</div>` : ""}
+    `;
+    grid.appendChild(tile);
+  });
+}
+
+// ── CHECK-IN ─────────────────────────────────────────────────────────────────
+async function doCheckin(boothId) {
+  const booth = BOOTHS.find(b => b.id === boothId);
+  if (!booth) { alert("유효하지 않은 QR코드예요."); showHome(); return; }
+
+  showScreen("loading");
+  const uid     = getUid();
+  const before  = await getVisited(uid);
+  const already = before.includes(boothId);
+  const visited = already ? before : await saveVisit(uid, boothId);
+
+  // 완주 체크: 모든 부스 ID가 visited에 있는지 확인
+  const isComplete = BOOTH_IDS.every(id => visited.includes(id));
+  if (!already && isComplete) {
+    renderComplete(visited);
+    return;
+  }
+
+  const icon  = document.getElementById("ci-icon");
+  const title = document.getElementById("ci-title");
+  const badge = document.getElementById("ci-badge");
+
+  if (already) {
+    icon.textContent = "!";
+    icon.style.background = "#aaa";
+    title.textContent = "이미 방문한 부스예요";
+  } else {
+    icon.textContent = "✓";
+    icon.style.background = booth.color;
+    title.textContent = "체크인 완료!";
+  }
+  badge.textContent = booth.icon + " " + booth.name;
+  badge.style.background = booth.color;
+
+  document.getElementById("ci-count").textContent = visited.length;
+  document.getElementById("ci-total").textContent = BOOTHS.length;
+  document.getElementById("ci-fill").style.width  = (visited.length / BOOTHS.length * 100) + "%";
+  document.getElementById("ci-fill").style.background = booth.color;
+
+  const dots = document.getElementById("ci-dots");
+  dots.innerHTML = "";
+  BOOTHS.forEach(b => {
+    const dot = document.createElement("div");
+    dot.className = "dot";
+    dot.title = b.name;
+    dot.style.background = visited.includes(b.id) ? b.color : "#ddd";
+    dot.textContent = visited.includes(b.id) ? "✓" : "";
+    dots.appendChild(dot);
+  });
+
+  document.getElementById("ci-back-btn").onclick = showHome;
+  showScreen("checkin");
+}
+
+// ── COMPLETE ─────────────────────────────────────────────────────────────────
+function renderComplete(visited) {
+  document.getElementById("complete-msg").innerHTML =
+    GIFT_MESSAGE.split("\n").map(l => l ? `<span>${l}</span>` : "<br>").join("<br>");
+  const grid = document.getElementById("complete-stamps");
+  grid.innerHTML = "";
+  BOOTHS.forEach((b, i) => {
+    const s = document.createElement("div");
+    s.className = "stamp";
+    s.style.background = b.color;
+    s.style.animationDelay = (i * 0.08) + "s";
+    s.textContent = b.icon;
+    grid.appendChild(s);
+  });
+  showScreen("complete");
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────────────
+let adminUnsubscribe = null;
+let openBoothId = null;
+
+const ADMIN_PASSWORD = "kcc2026";
+
+window.showAdmin = function() {
+  const pw = prompt("관리자 암호를 입력하세요:");
+  if (pw !== ADMIN_PASSWORD) {
+    if (pw !== null) alert("암호가 틀렸습니다.");
+    return;
+  }
+  showScreen("admin");
+  document.getElementById("stat-booths").textContent = BOOTHS.length;
+  if (adminUnsubscribe) adminUnsubscribe();
+  // 그리드 초기화 (화면 전환 시 카드 재생성)
+  document.getElementById("admin-booth-grid").innerHTML = "";
+  Object.keys(qrGenerated).forEach(k => delete qrGenerated[k]);
+
+  adminUnsubscribe = onSnapshot(collection(db, "checkins"), (snapshot) => {
+    const all   = {};
+    snapshot.forEach(d => { all[d.id] = d.data().visited || []; });
+    const total = Object.keys(all).length;
+    const done  = Object.values(all).filter(v => BOOTH_IDS.every(id => v.includes(id))).length;
+    document.getElementById("stat-total").textContent    = total;
+    document.getElementById("stat-complete").textContent = done;
+    renderAdminBooths(all);
+  });
+};
+
+// QR 캐시: 한번 생성한 QR은 재생성하지 않음
+const qrGenerated = {};
+
+function renderAdminBooths(all) {
+  const grid = document.getElementById("admin-booth-grid");
+
+  BOOTHS.forEach(booth => {
+    const count  = Object.values(all).filter(v => v.includes(booth.id)).length;
+    const isOpen = openBoothId === booth.id;
+    const cardId = "card-" + booth.id;
+
+    // 카드가 이미 있으면 방문자 수만 업데이트
+    let card = document.getElementById(cardId);
+    if (!card) {
+      card = document.createElement("div");
+      card.id = cardId;
+      const checkUrl = BASE_URL + "?booth=" + booth.id;
+      card.innerHTML = `
+        <div class="admin-booth-icon" style="background:${booth.color}">${booth.icon}</div>
+        <div class="admin-booth-name">${booth.name}</div>
+        <div class="admin-booth-count" id="count-${booth.id}"><span style="color:${booth.color};font-weight:700">${count}</span> 명 방문</div>
+        <div class="qr-expand" id="qr-${booth.id}">
+          <div class="qr-wrap" id="qrbox-${booth.id}"></div>
+          <div class="qr-url">${checkUrl}</div>
+          <div class="qr-hint">📱 스마트폰으로 스캔하세요</div>
+        </div>
+      `;
+      card.onclick = () => {
+        openBoothId = openBoothId === booth.id ? null : booth.id;
+        updateAdminCard(booth, all);
+      };
+      grid.appendChild(card);
+    } else {
+      // 방문자 수 업데이트
+      const countEl = document.getElementById("count-" + booth.id);
+      if (countEl) countEl.innerHTML = `<span style="color:${booth.color};font-weight:700">${count}</span> 명 방문`;
+    }
+    updateAdminCard(booth, all);
+  });
+}
+
+function updateAdminCard(booth, all) {
+  const isOpen = openBoothId === booth.id;
+  const card   = document.getElementById("card-" + booth.id);
+  const qrDiv  = document.getElementById("qr-" + booth.id);
+  if (!card || !qrDiv) return;
+
+  card.className = "admin-booth-card" + (isOpen ? " open" : "");
+  card.style.borderColor = booth.color;
+  card.style.boxShadow   = isOpen ? `0 0 0 3px ${booth.color}50` : "0 4px 20px rgba(0,0,0,0.2)";
+  qrDiv.className = "qr-expand" + (isOpen ? " show" : "");
+
+  // QR 코드 생성 (한 번만)
+  if (isOpen && !qrGenerated[booth.id]) {
+    const box      = document.getElementById("qrbox-" + booth.id);
+    const checkUrl = BASE_URL + "?booth=" + booth.id;
+    if (box && box.children.length === 0) {
+      new QRCode(box, {
+        text: checkUrl,
+        width: 180, height: 180,
+        colorDark: booth.color,
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+      qrGenerated[booth.id] = true;
+    }
+  }
+}
+
+window.resetData = async function() {
+  if (!confirm("모든 체크인 데이터를 초기화할까요?\n(취소할 수 없습니다)")) return;
+  const snap = await getDocs(collection(db, "checkins"));
+  await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "checkins", d.id))));
+  alert("초기화 완료!");
+};
+
+// ── IN-APP QR SCANNER ────────────────────────────────────────────────────────
+let scanStream = null;
+let scanTimer  = null;
+
+window.openScanner = async function() {
+  document.getElementById("scan-modal").classList.add("show");
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    });
+    const video = document.getElementById("qr-video");
+    video.srcObject = scanStream;
+    video.play();
+    scanLoop(video);
+  } catch(e) {
+    alert("카메라 접근 권한이 필요해요.\n브라우저 설정에서 카메라를 허용해주세요.");
+    closeScanner();
+  }
+};
+
+function scanLoop(video) {
+  const canvas = document.createElement("canvas");
+  const ctx    = canvas.getContext("2d");
+
+  function tick() {
+    if (!scanStream) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code    = jsQR(imgData.data, imgData.width, imgData.height);
+      if (code) {
+        const url = code.data;
+        // 우리 앱 URL인지 확인
+        const match = url.match(/[?&]booth=([^&]+)/);
+        if (match) {
+          closeScanner();
+          doCheckin(match[1]);
+          return;
+        }
+      }
+    }
+    scanTimer = requestAnimationFrame(tick);
+  }
+  scanTimer = requestAnimationFrame(tick);
+}
+
+window.closeScanner = function() {
+  if (scanTimer) { cancelAnimationFrame(scanTimer); scanTimer = null; }
+  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  document.getElementById("scan-modal").classList.remove("show");
+  document.getElementById("qr-video").srcObject = null;
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.showHome = showHome;
+
+// uid를 미리 발급해서 localStorage에 저장
+getUid();
+
+// URL에 booth 파라미터가 있으면 바로 체크인 (카메라 앱으로 스캔한 경우)
+(async function init() {
+  const params  = new URLSearchParams(window.location.search);
+  const boothId = params.get("booth");
+  if (boothId) {
+    // URL에서 booth 파라미터 제거 (깔끔하게)
+    window.history.replaceState({}, "", window.location.pathname);
+    await doCheckin(boothId);
+  } else {
+    await showHome();
+  }
+})();
+</script>
+</body>
+</html>    .booth-tile.visited { opacity: 1; }
+    .booth-tile-icon { font-size: 28px; }
+    .booth-tile-name { font-size: 11px; font-weight: 700; color: #333; line-height: 1.3; }
+    .booth-tile-check { font-size: 18px; font-weight: 900; }
+    .admin-link {
+      display: block; margin: 4px auto 24px;
+      background: transparent; border: none;
+      color: #bbb; font-size: 12px;
+      cursor: pointer; font-family: inherit;
+    }
+
+    /* ── QR SCANNER MODAL ── */
+    .modal-bg {
+      display: none; position: fixed;
+      inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 100; align-items: center; justify-content: center;
+      flex-direction: column;
+    }
+    .modal-bg.show { display: flex; }
+    #qr-video {
+      width: 100%; max-width: 360px;
+      border-radius: 16px; display: block;
+    }
+    .modal-hint { color: #fff; font-size: 14px; margin-top: 16px; opacity: 0.8; }
+    .modal-close {
+      margin-top: 20px; background: transparent;
+      border: 1px solid #ffffff66; color: #fff;
+      padding: 10px 28px; border-radius: 20px;
+      font-size: 14px; cursor: pointer; font-family: inherit;
+    }
+    .scan-frame {
+      position: relative; width: 100%; max-width: 360px;
+    }
+    .scan-overlay {
+      position: absolute; inset: 0;
+      border: 3px solid #6C63FF;
+      border-radius: 16px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }
+
+    /* ── CHECK-IN ── */
+    #screen-checkin {
+      display: none; align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #f0f4ff, #e8f5e9);
+      padding: 24px;
+    }
+    #screen-checkin.active { display: flex; }
+    .checkin-card {
+      background: #fff; border-radius: 28px;
+      padding: 36px 28px; max-width: 360px;
+      width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+    .big-icon {
+      width: 80px; height: 80px; border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; color: #fff; margin: 0 auto 16px;
+    }
+    .checkin-title { font-size: 22px; font-weight: 900; color: #1a1a2e; margin-bottom: 10px; }
+    .booth-badge {
+      display: inline-block; color: #fff;
+      border-radius: 20px; padding: 7px 20px;
+      font-size: 14px; font-weight: 700; margin-bottom: 28px;
+    }
+    .dot-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .dot {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: #fff; font-weight: 900;
+      background: #ddd; transition: background 0.3s;
+    }
+    .back-btn {
+      background: #6C63FF; color: #fff; border: none;
+      padding: 13px 36px; border-radius: 24px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      margin-top: 20px; font-family: inherit; width: 100%;
+    }
+
+    /* ── COMPLETE ── */
+    #screen-complete {
+      display: none; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, #1a1040, #6C63FF);
+      padding: 24px;
+    }
+    #screen-complete.active { display: flex; }
+    .complete-card {
+      background: #fff; border-radius: 28px;
+      padding: 40px 28px; max-width: 360px;
+      width: 100%; text-align: center;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    }
+    .trophy { font-size: 72px; margin-bottom: 8px; animation: bounce 1s infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+    .complete-title { font-size: 26px; font-weight: 900; color: #1a1040; margin-bottom: 6px; }
+    .complete-sub { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .complete-msg {
+      background: #f8f6ff; border-radius: 16px;
+      padding: 20px; font-size: 14px; line-height: 1.9;
+      color: #444; margin-bottom: 24px; text-align: left;
+      border-left: 4px solid #6C63FF;
+    }
+    .stamp-grid { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    .stamp {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; animation: pop 0.4s ease backwards;
+    }
+    @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* ── ADMIN ── */
+    #screen-admin { background: #0f0c1d; color: #fff; padding-bottom: 48px; }
+    .admin-header {
+      background: linear-gradient(160deg, #1a1040, #0f0c1d);
+      padding: 44px 24px 32px; text-align: center;
+      border-bottom: 1px solid #ffffff18;
+    }
+    .admin-cross { font-size: 32px; color: #a78bfa; margin-bottom: 8px; }
+    .admin-title { font-size: 28px; font-weight: 900; letter-spacing: 3px; color: #fff; margin-bottom: 6px; }
+    .admin-sub { font-size: 13px; color: #a78bfa; letter-spacing: 3px; margin-bottom: 16px; }
+    .switch-btn {
+      background: transparent; border: 1px solid #a78bfa;
+      color: #a78bfa; padding: 9px 22px; border-radius: 20px;
+      cursor: pointer; font-size: 13px; font-family: inherit;
+    }
+    .stats-row { display: flex; gap: 12px; padding: 24px 16px 0; }
+    .stat-card {
+      flex: 1; background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-radius: 16px; padding: 16px 8px;
+      text-align: center; border: 1px solid #ffffff18;
+    }
+    .stat-num { font-size: 34px; font-weight: 900; color: #fff; }
+    .stat-label { font-size: 11px; color: #94a3b8; margin-top: 4px; letter-spacing: 1px; }
+    .section-title { padding: 28px 20px 12px; font-size: 13px; color: #a78bfa; letter-spacing: 3px; font-weight: 700; }
+    .admin-booth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
+    .admin-booth-card {
+      background: #1a1535; border-radius: 16px; padding: 16px;
+      border: 1px solid transparent; cursor: pointer; transition: all 0.2s;
+    }
+    .admin-booth-card.open { grid-column: span 2; }
+    .admin-booth-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 8px;
+    }
+    .admin-booth-name { font-weight: 700; font-size: 14px; color: #fff; margin-bottom: 4px; }
+    .admin-booth-count { font-size: 13px; color: #888; }
+    .qr-expand {
+      display: none; flex-direction: column; align-items: center;
+      gap: 10px; margin-top: 16px; padding-top: 16px;
+      border-top: 1px solid #ffffff18;
+    }
+    .qr-expand.show { display: flex; }
+    .qr-wrap { border-radius: 12px; overflow: hidden; background: #fff; padding: 8px; }
+    .qr-url { font-size: 9px; color: #94a3b8; word-break: break-all; text-align: center; max-width: 280px; }
+    .qr-hint { font-size: 12px; color: #a78bfa; }
+    .reset-btn {
+      display: block; margin: 32px auto 0;
+      background: transparent; border: 1px solid #ff4d4d44;
+      color: #ff6b6b; padding: 11px 28px; border-radius: 20px;
+      cursor: pointer; font-size: 13px; font-family: inherit;
+    }
+    .live-badge {
+      display: inline-block; background: #22c55e;
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* ── LOADING ── */
+    #screen-loading {
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px; background: #f8f6ff;
+    }
+    #screen-loading.active { display: flex; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid #e8e8ff; border-top: 4px solid #6C63FF;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: #6C63FF; font-weight: 700; font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<!-- ── QR SCANNER MODAL ── -->
+<div class="modal-bg" id="scan-modal">
+  <div class="scan-frame">
+    <video id="qr-video" autoplay playsinline muted></video>
+    <div class="scan-overlay"></div>
+  </div>
+  <div class="modal-hint">📷 부스의 QR 코드를 화면에 맞춰주세요</div>
+  <button class="modal-close" onclick="closeScanner()">닫기</button>
+</div>
+
+<!-- ── LOADING ── -->
+<div id="screen-loading" class="screen">
+  <div class="spinner"></div>
+  <div class="loading-text">체크인 중...</div>
+</div>
+
+<!-- ── HOME ── -->
+<div id="screen-home" class="screen">
+  <div class="home-header">
+    <div class="home-cross">✝</div>
+    <div class="home-title">사역박람회</div>
     <div class="home-sub">Ministry Fair 2025</div>
   </div>
   <div class="complete-banner" id="home-complete-banner">
